@@ -39,6 +39,7 @@ abstract class Nexcessnet_Turpentine_Model_Varnish_Configurator_Abstract {
             return null;
         }
         switch ($version) {
+            case '6.3':
             case '4.0':
             case '4.1':
                 return Mage::getModel(

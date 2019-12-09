@@ -93,7 +93,7 @@ class Nexcessnet_Turpentine_Model_Varnish_Admin_Socket {
     /**
      * VCL config versions, should match config select values
      */
-    static protected $_VERSIONS = array('2.1', '3.0', '4.0', '4.1');
+    static protected $_VERSIONS = array('2.1', '3.0', '4.0', '4.1', '6.3');
 
     /**
      * Varnish socket connection
@@ -402,30 +402,30 @@ class Nexcessnet_Turpentine_Model_Varnish_Admin_Socket {
         }
         $data = rtrim($data).PHP_EOL;
         $dataLength = strlen($data);
-        if ($dataLength >= self::CLI_CMD_LENGTH_LIMIT) {
-            $cliBufferResponse = $this->param_show('cli_buffer');
-            $regexp = '~^cli_buffer\s+(\d+)\s+\[bytes\]~';
-            if ($this->getVersion() === '4.0' || $this->getVersion() === '4.1') {
-                // Varnish4 supports "16k" style notation
-                $regexp = '~^cli_buffer\s+Value is:\s+(\d+)([k|m|g|b]{1})?\s+\[bytes\]~';
-            }
-            if (preg_match($regexp, $cliBufferResponse['text'], $match)) {
-                $realLimit = (int) $match[1];
-                if (isset($match[2])) {
-                    $factors = array('b'=>0, 'k'=>1, 'm'=>2, 'g'=>3);
-                    $realLimit *= pow(1024, $factors[$match[2]]);
-                }
-            } else {
-                Mage::helper('turpentine/debug')->logWarn(
-                    'Failed to determine Varnish cli_buffer limit, using default' );
-                $realLimit = self::CLI_CMD_LENGTH_LIMIT;
-            }
-            if ($dataLength >= $realLimit) {
-                Mage::throwException(sprintf(
-                    'Varnish data to write over length limit by %d characters',
-                    $dataLength - $realLimit ));
-            }
-        }
+//        if ($dataLength >= self::CLI_CMD_LENGTH_LIMIT) {
+//            $cliBufferResponse = $this->param_show('cli_buffer');
+//            $regexp = '~^cli_buffer\s+(\d+)\s+\[bytes\]~';
+//            if ($this->getVersion() === '4.0' || $this->getVersion() === '4.1') {
+//                // Varnish4 supports "16k" style notation
+//                $regexp = '~^cli_buffer\s+Value is:\s+(\d+)([k|m|g|b]{1})?\s+\[bytes\]~';
+//            }
+//            if (preg_match($regexp, $cliBufferResponse['text'], $match)) {
+//                $realLimit = (int) $match[1];
+//                if (isset($match[2])) {
+//                    $factors = array('b'=>0, 'k'=>1, 'm'=>2, 'g'=>3);
+//                    $realLimit *= pow(1024, $factors[$match[2]]);
+//                }
+//            } else {
+//                Mage::helper('turpentine/debug')->logWarn(
+//                    'Failed to determine Varnish cli_buffer limit, using default' );
+//                $realLimit = self::CLI_CMD_LENGTH_LIMIT;
+//            }
+//            if ($dataLength >= $realLimit) {
+//                Mage::throwException(sprintf(
+//                    'Varnish data to write over length limit by %d characters',
+//                    $dataLength - $realLimit ));
+//            }
+//        }
         if (($byteCount = fwrite($this->_varnishConn, $data)) !== $dataLength) {
             Mage::throwException(sprintf('Varnish socket write error: %d != %d',
                 $byteCount, $dataLength));
@@ -518,6 +518,7 @@ class Nexcessnet_Turpentine_Model_Varnish_Admin_Socket {
             case '2.1':
                 $command = str_replace('ban', 'purge', $command);
                 break;
+            case '6.3':
             case '4.1':
             case '4.0':
             case '3.0':
