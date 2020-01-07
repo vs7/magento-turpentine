@@ -893,6 +893,7 @@ EOS;
         switch (Mage::getStoreConfig('turpentine_varnish/servers/version')) {
             case 4.0:
             case 4.1:
+            case 6.3:
                 $tpl = <<<EOS
 if (req.http.X-Forwarded-For) {
     if (req.http.X-Forwarded-For !~ "{{debug_ips}}") {
@@ -955,6 +956,7 @@ EOS;
         switch (Mage::getStoreConfig('turpentine_varnish/servers/version')) {
             case 4.0:
             case 4.1:
+            case 6.3:
                 $tpl = <<<EOS
 if ( ($hostRegex) && req.http.X-Forwarded-Proto !~ "(?i)https") {
         return (synth(750, ""));
@@ -1014,6 +1016,7 @@ EOS;
         switch (Mage::getStoreConfig('turpentine_varnish/servers/version')) {
             case 4.0:
             case 4.1:
+            case 6.3:
                 $tpl = <<<EOS
 sub vcl_synth {
     if (resp.status == 999) {
@@ -1161,7 +1164,7 @@ sub vcl_synth {
         
         if (Mage::getStoreConfig('turpentine_varnish/general/https_redirect_fix')) {
             $vars['https_redirect'] = $this->_vcl_sub_https_redirect_fix();
-            if (Mage::getStoreConfig('turpentine_varnish/servers/version') == '4.0' || Mage::getStoreConfig('turpentine_varnish/servers/version') == '4.1') {
+            if (Mage::getStoreConfig('turpentine_varnish/servers/version') == '4.0' || Mage::getStoreConfig('turpentine_varnish/servers/version') == '4.1' || Mage::getStoreConfig('turpentine_varnish/servers/version') == '6.3') {
                 $vars['vcl_synth'] = $this->_vcl_sub_synth_https_fix();
             }
         }
